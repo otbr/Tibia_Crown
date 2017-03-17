@@ -13,13 +13,21 @@ function onUse(player, item, fromPosition, target, toPosition, isHotkey)
 	end
 
 	if player:hasBlessing(useItem.blessId) then
-		player:say('You already possess this blessing.', TALKTYPE_MONSTER_SAY)
-		return true
+	player:say('You already possess this blessing.', TALKTYPE_MONSTER_SAY)
 	end
-
+	if player:hasBlessing(1) and player:hasBlessing(2) and 	player:hasBlessing(3) and player:hasBlessing(4) and 	player:hasBlessing(5) then
+	player:addBlessing(7)
+	player:sendAdventurerBlessing()
+	return true
+end
+		
 	player:addBlessing(useItem.blessId)
 	player:sendTextMessage(MESSAGE_EVENT_ADVANCE, useItem.text .. ' protects you.')
 	player:getPosition():sendMagicEffect(CONST_ME_LOSEENERGY)
 	item:remove(1)
+	end
+	if player:hasBlessing(1) and player:hasBlessing(2) and 	player:hasBlessing(3) and player:hasBlessing(4) and 	player:hasBlessing(5) then
+	player:addBlessing(7)
+	player:sendAdventurerBlessing()
 	return true
 end
