@@ -85,12 +85,10 @@ function getBlessingsCost(level)
 end
 
 function getPvpBlessingCost(level)
-	if level <= 30 then
-		return 2000
-	elseif level >= 270 then
-		return 50000
+	if level <= 29 then
+		return 5000
 	else
-		return (level - 20) * 200
+		return (level * 200)
 	end
 end
 
