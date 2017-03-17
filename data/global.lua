@@ -115,3 +115,36 @@ end
 if nextUseStaminaTime == nil then
 	nextUseStaminaTime = {}
 end
+
+table.contains = function(array, value)
+    for _, targetColumn in pairs(array) do
+        if targetColumn == value then
+            return true
+        end
+    end
+    return false
+end
+
+isInArray = function(array, value)
+    for _, targetColumn in pairs(array) do
+        if targetColumn == value then
+            return true
+        end
+    end
+    return false
+end
+
+string.split = function(str, sep)
+	local res = {}
+	for v in str:gmatch("([^" .. sep .. "]+)") do
+		res[#res + 1] = v
+	end
+	return res
+end
+
+function logCommand(player, words, param)
+    local file = io.open("data/logs/"..player:getName()..".log", "a+")
+    file:write(("[ %s ] %s%s\n"):format(os.date(), words, (param ~= "" and " " or "") .. param))
+    file:close()
+    return true
+end
