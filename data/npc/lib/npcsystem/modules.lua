@@ -1,4 +1,37 @@
--- Advanced NPC System by Jiddo
+function Player.removeMoneyNpc(self, amount)
+    local moneyCount = self:getMoney()
+    local bankCount = self:getBankBalance()
+    if amount > moneyCount + bankCount then
+		return false
+    end
+ 
+    self:removeMoney(math.min(amount, moneyCount))
+    if amount > moneyCount then
+        self:setBankBalance(bankCount - math.max(amount - moneyCount, 0))
+        if moneyCount == 0 then
+            self:sendTextMessage(MESSAGE_INFO_DESCR, ("Paid %d gold from bank account. Your account balance is now %d gold."):format(amount, self:getBankBalance()))
+        else
+            self:sendTextMessage(MESSAGE_INFO_DESCR, ("Paid %d from inventory and %d gold from bank account. Your account balance is now %d gold."):format(moneyCount, amount - moneyCount, self:getBankBalance()))
+        end
+    end
+    return true
+end
+ 
+local function getPlayerMoney(cid)
+    local player = Player(cid)
+    if player then
+        return player:getMoney() + player:getBankBalance()
+    end
+    return 0
+end
+ 
+local function doPlayerRemoveMoney(cid, amount)
+    local player = Player(cid)
+    if player then
+        return player:removeMoneyNpc(amount)
+    end
+    return false
+end
 
 if Modules == nil then
 	-- default words for greeting and ungreeting the npc. Should be a table containing all such words.
@@ -69,7 +102,7 @@ if Modules == nil then
 			costMessage = 'free'
 		end
 
-		local parseInfo = {[TAG_PLAYERNAME] = player:getName(), [TAG_TIME] = getTibianTime(), [TAG_BLESSCOST] = getBlessingsCost(player:getLevel()), [TAG_PVPBLESSCOST] = getPvpBlessingCost(player:getLevel()), [TAG_TRAVELCOST] = costMessage}
+		local parseInfo = {[TAG_PLAYERNAME] = player:getName(), [TAG_TIME] = getTibianTime(), [TAG_BLESSCOST] = getBlessingCost(player:getLevel()), [TAG_PVPBLESSCOST] = getPvpBlessingCost(player:getLevel()), [TAG_TRAVELCOST] = costMessage}
 		if parameters.text then
 			npcHandler:say(npcHandler:parseMessage(parameters.text, parseInfo), cid, parameters.publicize and true)
 		end
@@ -105,7 +138,7 @@ if Modules == nil then
 				npcHandler:say("You are already promoted!", cid)
 			elseif player:getLevel() < parameters.level then
 				npcHandler:say("I am sorry, but I can only promote you once you have reached level " .. parameters.level .. ".", cid)
-			elseif not player:removeMoney(parameters.cost) then
+			elseif not player:removeMoneyNpc(parameters.cost) then
 				npcHandler:say("You do not have enough money!", cid)
 			else
 				player:setStorageValue(Storage.Promotion, 1)
@@ -135,7 +168,7 @@ if Modules == nil then
 			npcHandler:say("You already know how to cast this spell.", cid)
 		elseif player:getLevel() < parameters.level then
 			npcHandler:say("You have to be level " .. parameters.level .. " to learn this spell.", cid)
-		elseif not player:removeMoney(parameters.price) then
+		elseif not player:removeMoneyNpc(parameters.price) then
 			npcHandler:say("Return when you have enough gold.", cid)
 		else
 			npcHandler:say("Here you are. Look in your spellbook for the pronunciation of this spell.", cid)
@@ -158,20 +191,16 @@ if Modules == nil then
 		end
 
 		local player = Player(cid)
-		local parseInfo = {[TAG_BLESSCOST] = getBlessingsCost(player:getLevel()), [TAG_PVPBLESSCOST] = getPvpBlessingCost(player:getLevel())}
+		local parseInfo = {[TAG_BLESSCOST] = getBlessingCost(player:getLevel()), [TAG_PVPBLESSCOST] = getPvpBlessingCost(player:getLevel())}
+			
 		if player:hasBlessing(parameters.bless) then
 			npcHandler:say("You already possess this blessing.", cid)
-		elseif parameters.bless == 4 and player:getStorageValue(Storage.KawillBlessing) ~= 1 then
-			npcHandler:say("You need the blessing of the great geomancer first.", cid)
 		elseif parameters.bless == 6 and player:getBlessings() == 0 and not player:getItemById(2173, true) then
 			npcHandler:say("You don't have any of the other blessings nor an amulet of loss, so it wouldn't make sense to bestow this protection on you now. Remember that it can only protect you from the loss of those!", cid)
-		elseif not player:removeMoney(type(parameters.cost) == "string" and npcHandler:parseMessage(parameters.cost, parseInfo) or parameters.cost) then
+		elseif not player:removeMoneyNpc(type(parameters.cost) == "string" and npcHandler:parseMessage(parameters.cost, parseInfo) or parameters.cost) then
 			npcHandler:say("Oh. You do not have enough money.", cid)
 		else
 			npcHandler:say(parameters.text or "You have been blessed by one of the five gods!", cid)
-			if parameters.bless == 4 then
-				player:setStorageValue(Storage.KawillBlessing, 0)
-			end
 			player:addBlessing(parameters.bless)
 			player:getPosition():sendMagicEffect(CONST_ME_MAGIC_BLUE)
 		end
@@ -210,7 +239,7 @@ if Modules == nil then
 			npcHandler:say("You must reach level " .. parameters.level .. " before I can let you go there.", cid)
 		elseif player:isPzLocked() then
 			npcHandler:say("First get rid of those blood stains! You are not going to ruin my vehicle!", cid)
-		elseif not player:removeMoney(cost) then
+		elseif not player:removeMoneyNpc(cost) then
 			npcHandler:say("You don't have enough money.", cid)
 		else
 			npcHandler:releaseFocus(cid)
@@ -553,7 +582,7 @@ if Modules == nil then
 
 		local player = Player(cid)
 		if not isPlayerPremiumCallback or isPlayerPremiumCallback(player) or shop_premium[cid] ~= true then
-			if not player:removeMoney(cost) then
+			if not player:removeMoneyNpc(cost) then
 				npcHandler:say("You do not have enough money!", cid)
 			elseif player:isPzLocked() then
 				npcHandler:say("Get out of there with this blood.", cid)
@@ -598,7 +627,7 @@ if Modules == nil then
 
 		if(not isPlayerPremiumCallback or isPlayerPremiumCallback(cid) or parameters.premium ~= true) then
 			local player = Player(cid)
-			if player:removeMoney(cost) then
+			if player:removeMoneyNpc(cost) then
 				player:teleportTo(destination)
 				Position(destination):sendMagicEffect(CONST_ME_TELEPORT)
 			end
@@ -1037,7 +1066,7 @@ if Modules == nil then
 			[TAG_ITEMNAME] = shopItem.name
 		}
 
-		if player:getMoney() < totalCost then
+		if player:getMoney() + player:getBankBalance() < totalCost then
 			local msg = self.npcHandler:getMessage(MESSAGE_NEEDMONEY)
 			msg = self.npcHandler:parseMessage(msg, parseInfo)
 			player:sendCancelMessage(msg)
@@ -1059,7 +1088,7 @@ if Modules == nil then
 			self.npcHandler.talkStart[cid] = os.time()
 
 			if(a > 0) then
-				player:removeMoney((a * shopItem.buy) + (b * 20))
+				player:removeMoneyNpc((a * shopItem.buy) + (b * 20))
 				return true
 			end
 
@@ -1068,7 +1097,7 @@ if Modules == nil then
 			local msg = self.npcHandler:getMessage(MESSAGE_BOUGHT)
 			msg = self.npcHandler:parseMessage(msg, parseInfo)
 			player:sendTextMessage(MESSAGE_INFO_DESCR, msg)
-			player:removeMoney(totalCost)
+			player:removeMoneyNpc(totalCost)
 			self.npcHandler.talkStart[cid] = os.time()
 			return true
 		end
@@ -1176,7 +1205,7 @@ if Modules == nil then
 			end
 		elseif(shop_eventtype[cid] == SHOPMODULE_BUY_ITEM) then
 			local cost = shop_cost[cid] * shop_amount[cid]
-			if Player(cid):getMoney() < cost then
+			if Player(cid):getMoney() + Player(cid):getBankBalance() < cost then
 				local msg = module.npcHandler:getMessage(MESSAGE_MISSINGMONEY)
 				msg = module.npcHandler:parseMessage(msg, parseInfo)
 				module.npcHandler:say(msg, cid)
@@ -1194,7 +1223,7 @@ if Modules == nil then
 				msg = module.npcHandler:parseMessage(msg, parseInfo)
 				module.npcHandler:say(msg, cid)
 				if(a > 0) then
-					Player(cid):removeMoney(a * shop_cost[cid])
+					Player(cid):removeMoneyNpc(a * shop_cost[cid])
 					if shop_itemid[cid] == ITEM_PARCEL then
 						doNpcSellItem(cid, ITEM_LABEL, shop_amount[cid], shop_subtype[cid], true, false, 1988)
 					end
@@ -1205,7 +1234,7 @@ if Modules == nil then
 				local msg = module.npcHandler:getMessage(MESSAGE_ONBUY)
 				msg = module.npcHandler:parseMessage(msg, parseInfo)
 				module.npcHandler:say(msg, cid)
-				Player(cid):removeMoney(cost)
+				Player(cid):removeMoneyNpc(cost)
 				if shop_itemid[cid] == ITEM_PARCEL then
 					doNpcSellItem(cid, ITEM_LABEL, shop_amount[cid], shop_subtype[cid], true, false, 1988)
 				end
