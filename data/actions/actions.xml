@@ -1,19 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <actions>
-	<!-- Rookgaard -->
-	<action uniqueid="50081" script="rookgaard/rookgaard tutorial island/snakeHead.lua" />
-	<action itemid="8599" script="rookgaard/rookgaard tutorial island/ladderReqCockroachLegs.lua" />
-	<action itemid="8593" script="rookgaard/rookgaard tutorial island/cockroachDeadBody.lua" />
-	<action itemid="8582" script="rookgaard/rookgaard tutorial island/branch.lua" />
-	<action itemid="8583" script="rookgaard/rookgaard tutorial island/deadTreeBranch.lua" />
-	<action uniqueid="50085" script="rookgaard/rookgaard tutorial island/zirellaDoor.lua" />
-	<action actionid="50239" script="rookgaard/SewerLever.lua" />
-	<action actionid="5637" script="rookgaard/katana_quest_lever.lua" />
-	<action actionid="1002" script="rookgaard/katana_quest_door.lua" />
-	<action actionid="5638" script="rookgaard/bearroom_quest_lever.lua" />
-	<action actionid="5639" script="rookgaard/doublet_quest.lua" />
-	<action actionid="5640" script="rookgaard/honeyflower_quest.lua" />
-	<action actionid="5641" script="rookgaard/banana_quest.lua" />
 
 	<!-- Adventurer's Guild -->
 	<action itemid="18559" script="adventurers guild/adventurers_stone.lua" />
