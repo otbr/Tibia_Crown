@@ -1,6 +1,5 @@
 -- ordered as in creaturescripts.xml
 local events = {
-	'TutorialCockroach',
 	'ElementalSpheresOverlords',
 	'BigfootBurdenVersperoth',
 	'BigfootBurdenWarzone',
@@ -49,7 +48,7 @@ function onLogin(player)
 	local loginStr = 'Welcome to ' .. configManager.getString(configKeys.SERVER_NAME) .. '!'
 	if player:getLastLoginSaved() <= 0 then
 		loginStr = loginStr .. ' Please choose your outfit.'
-		player:sendTutorial(1)
+		player:sendOutfitWindow()
 	else
 		if loginStr ~= '' then
 			player:sendTextMessage(MESSAGE_STATUS_DEFAULT, loginStr)
@@ -87,5 +86,6 @@ function onLogin(player)
 		player:setStorageValue(Storage.combatProtectionStorage, os.time() + 10)
 		onMovementRemoveProtection(playerId, player:getPosition(), 10)
 	end
+	player:sendAdventurerBlessing()
 	return true
 end
