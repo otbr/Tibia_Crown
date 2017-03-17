@@ -230,3 +230,11 @@ function Player.withdrawMoney(self, amount)
 	self:setBankBalance(balance - amount)
 	return true
 end
+
+function Player.sendAdventurerBlessing(self)
+    local msg = NetworkMessage()
+    msg:addByte(0x9C)
+    msg:addU16(self:hasBlessing(7) and 0x01 or 0x00)
+    msg:sendToPlayer(self)
+    msg:delete()
+end
